@@ -21,7 +21,7 @@ async function plot(){
 
   // scale the range of the data
   x.domain(d3.extent(data, d => d.year ))
-  y.domain([0, 200])
+  y.domain([0, getMax(data, "gold").gold * 1.1])
 
   // add the X Axis
   svg.append("g")
@@ -48,7 +48,29 @@ async function plot(){
     .x(d => x(d.year))
     .y(d => y(d.gold))
 
-  // add the line
+  // highlight the top gold
+  let highlightSize = 8
+  let highlightOpacity = 0.8
+  let highlightColor = "#ffdc17"
+  let minYear = getMin(data, "year").year
+  let maxYear = getMax(data, "year").year
+
+  for (let year = minYear; year <= maxYear; year++) {
+    let topGold = getMax(data.filter(d => parseInt(d.year) == year), "gold")
+    if (topGold) {
+      svg.selectAll("myCircles")
+        .data([topGold])
+        .enter()
+        .append("circle")
+        .attr("fill", highlightColor)
+        .attr("fill-opacity", highlightOpacity)
+        .attr("cx", d => x(d.year) )
+        .attr("cy", d => y(d.gold) )
+        .attr("r", highlightSize)
+    }
+  }
+
+  // add lines
   addLine(svg, x, y, lineValue, "#69b3a2", getCountry(data, "Malaysia"))
   addLine(svg, x, y, lineValue, "#626169", getCountry(data, "Thailand"))
   addLine(svg, x, y, lineValue, "#C2DA58", getCountry(data, "Vietnam"))
@@ -60,6 +82,8 @@ async function plot(){
   addLine(svg, x, y, lineValue, "#D9C5F0", getCountry(data, "Laos"))
   addLine(svg, x, y, lineValue, "#F2D3EC", getCountry(data, "Brunei"))
   addLine(svg, x, y, lineValue, "#F00B4E", getCountry(data, "Timor-Leste"))
+
+  
 }
 
 function getCountry(data, country) {
@@ -113,6 +137,24 @@ function addLine(svg, x, y, lineValue, color, data) {
     .style("fill", color)
     .text("AA")
     .text(data[0].name)
+}
+
+function getMax(arr, prop) {
+  var max;
+  for (var i=0 ; i<arr.length ; i++) {
+      if (!max || parseInt(arr[i][prop]) > parseInt(max[prop]))
+          max = arr[i];
+  }
+  return max;
+}
+
+function getMin(arr, prop) {
+  var min;
+  for (var i=0 ; i<arr.length ; i++) {
+      if (!min || parseInt(arr[i][prop]) < parseInt(min[prop]))
+          min = arr[i];
+  }
+  return min;
 }
 
 function main() {
