@@ -1,80 +1,97 @@
-async function plot2(){
+async function plot(){
+  // Get the data
+  const dataPath = "https://gist.githubusercontent.com/rapee/fd513e1f231130c75a555bfbeb7e803b/raw/e71bcc5dc33cf2a606752ce9d3dbf4700bce3610/medals.csv"
+  const data = await d3.csv(dataPath)
+
   // set the dimensions and margins of the graph
-  let margin = {top: 20, right: 20, bottom: 30, left: 50}
-  let width = 600 - margin.left - margin.right
-  let height = 600 - margin.top - margin.bottom
+  let canvasSize = 600
+  let margin = {top: 20, right: 20, bottom: 40, left: 50}
+  let width = canvasSize*2 - margin.left - margin.right
+  let height = canvasSize - margin.top - margin.bottom
 
   // set the ranges
-  let x = d3.scaleLinear().range([0, width]);
-  let y = d3.scaleLinear().range([height, 0]);
+  let x = d3.scaleLinear().range([0, width])
+  let y = d3.scaleLinear().range([height, 0])
 
   // append the svg obgect to the body of the page
   let svg = d3.select("body").append("svg")
      .attr("width", width + margin.left + margin.right)
      .attr("height", height + margin.top + margin.bottom)
-     .append("g").attr("transform",
-        "translate(" + margin.left + "," + margin.top + ")");
+     .append("g").attr("transform", "translate(" + margin.left + "," + margin.top + ")")
 
-  // Get the data
-  data_path = "https://gist.githubusercontent.com/rapee/fd513e1f231130c75a555bfbeb7e803b/raw/e71bcc5dc33cf2a606752ce9d3dbf4700bce3610/medals.csv"
-  const data = await d3.csv(data_path);
-
-  // Scale the range of the data
-
-  console.log(data.reduce(function(max, x) { return (x.gold > max) ? x.gold : max; }, 0))
-
+  // scale the range of the data
   x.domain(d3.extent(data, d => d.year ))
-  // y.domain(d3.extent(data, d => d.gold ))
-  y.domain([0, d3.max(data, d => d.gold)])
   y.domain([0, 200])
 
-  // define the line
-  let valueline = d3.line()
-    .x(function(d) { return x(d.year); })
-    .y(function(d) { return y(d.gold); })
-
-  // Add the valueline path.
-  svg.append("path")
-    .data([data.filter(function(d) {return d.name == "Thailand"})])
-    .attr("class", "line")
-    .attr("d", valueline);
-
-  // Add the X Axis
+  // add the X Axis
   svg.append("g")
     .attr("transform", "translate(0," + height + ")")
-    .call(d3.axisBottom(x));
+    .call(d3.axisBottom(x))
+  svg.append("text")
+    .attr("transform", "translate(" + (width/2) + " ," + (height + margin.top + 20) + ")")
+    .style("text-anchor", "middle")
+    .text("Years")
 
-  // Add the Y Axis
+  // add the Y Axis
   svg.append("g")
-    .call(d3.axisLeft(y));
+    .call(d3.axisLeft(y))
+  svg.append("text")
+    .attr("transform", "rotate(-90)")
+    .attr("y", 0 - margin.left)
+    .attr("x",0 - (height / 2))
+    .attr("dy", "1em")
+    .style("text-anchor", "middle")
+    .text("Medals")
 
+  // define the line
+  let lineValue = d3.line()
+    .x(d => x(d.year))
+    .y(d => y(d.gold))
+
+  // add the line
+  addLine(svg, x, y, lineValue, "#69b3a2", getCountry(data, "Malaysia"))
+  addLine(svg, x, y, lineValue, "#626169", getCountry(data, "Thailand"))
+  addLine(svg, x, y, lineValue, "#C2DA58", getCountry(data, "Vietnam"))
+  addLine(svg, x, y, lineValue, "#C07AA1", getCountry(data, "Singapore"))
+  addLine(svg, x, y, lineValue, "#E5483A", getCountry(data, "Indonesia"))
+  addLine(svg, x, y, lineValue, "#55E56C", getCountry(data, "Philippines"))
+  addLine(svg, x, y, lineValue, "#8FCEE1", getCountry(data, "Myanmar"))
+  addLine(svg, x, y, lineValue, "#A4B6F6", getCountry(data, "Cambodia"))
+  addLine(svg, x, y, lineValue, "#D9C5F0", getCountry(data, "Laos"))
+  addLine(svg, x, y, lineValue, "#F2D3EC", getCountry(data, "Brunei"))
+  addLine(svg, x, y, lineValue, "#F00B4E", getCountry(data, "Timor-Leste"))
 }
 
-function plot() {
-  let data = [35, 21, 38, 77, 32, 44, 47, 80, 37, 50, 62, 49, 92, 63, 62, 72, 63, 157, 83, 65, 103, 90, 87, 183, 86, 109, 108, 95, 72];
+function getCountry(data, country) {
+  return data.filter(d => d.name == country)
+}
 
-  let bar = d3.select("svg").selectAll("rect")
-    .data(data);
+function addLine(svg, x, y, lineValue, color, data) {
+  let stokeWidth = 1.5
+  let strokeOpacity = 0.2
+  let dotSize = 3
 
-  let h = 600
-  let y = d3.scaleLinear()
-    .domain([0, d3.max(data)])
-    .range([0, h])
+  svg.append("path")
+  .datum(data)
+  .attr("fill", "none")
+  .attr("stroke", color)
+  .attr("stroke-width", stokeWidth)
+  .attr("stroke-opacity", strokeOpacity)
+  .attr("d", lineValue)
 
-  let color = d3.scaleLinear()
-    .domain([0, d3.max(data)])
-    .range(["red", "blue"])
-
-  bar.enter().append("rect")
-    .attr("x", (d, i) => i*20)
-    .attr("y", d => h-y(d))
-    .attr("height", d => y(d))
-    .style("fill", d => color(d))
+  svg.selectAll("myCircles")
+    .data(data)
+    .enter()
+    .append("circle")
+      .attr("fill", color)
+      .attr("stroke", "none")
+      .attr("cx", d => x(d.year) )
+      .attr("cy", d => y(d.gold) )
+      .attr("r", dotSize)
 }
 
 function main() {
-  // plot()
-  plot2()
+  plot()
 }
 
 main()
