@@ -49,9 +49,31 @@ async function plot(){
     .y(d => y(d.gold))
 
   // highlight the top gold
+  highlightTop(svg, x, y, data)
+
+  // add line of each country
+  addLine(svg, x, y, lineValue, "#69b3a2", getCountry(data, "Malaysia"))
+  addLine(svg, x, y, lineValue, "#626169", getCountry(data, "Thailand"))
+  addLine(svg, x, y, lineValue, "#C2DA58", getCountry(data, "Vietnam"))
+  addLine(svg, x, y, lineValue, "#C07AA1", getCountry(data, "Singapore"))
+  addLine(svg, x, y, lineValue, "#E5483A", getCountry(data, "Indonesia"))
+  addLine(svg, x, y, lineValue, "#55E56C", getCountry(data, "Philippines"))
+  addLine(svg, x, y, lineValue, "#8FCEE1", getCountry(data, "Myanmar"))
+  addLine(svg, x, y, lineValue, "#A4B6F6", getCountry(data, "Cambodia"))
+  addLine(svg, x, y, lineValue, "#D9C5F0", getCountry(data, "Laos"))
+  addLine(svg, x, y, lineValue, "#F2D3EC", getCountry(data, "Brunei"))
+  addLine(svg, x, y, lineValue, "#F00B4E", getCountry(data, "Timor-Leste"))
+}
+
+function getCountry(data, country) {
+  return data.filter(d => d.name == country)
+}
+
+function highlightTop(svg, x, y, data) {
   let highlightSize = 8
   let highlightOpacity = 0.8
   let highlightColor = "#ffdc17"
+
   let minYear = getMin(data, "year").year
   let maxYear = getMax(data, "year").year
 
@@ -69,30 +91,11 @@ async function plot(){
         .attr("r", highlightSize)
     }
   }
-
-  // add lines
-  addLine(svg, x, y, lineValue, "#69b3a2", getCountry(data, "Malaysia"))
-  addLine(svg, x, y, lineValue, "#626169", getCountry(data, "Thailand"))
-  addLine(svg, x, y, lineValue, "#C2DA58", getCountry(data, "Vietnam"))
-  addLine(svg, x, y, lineValue, "#C07AA1", getCountry(data, "Singapore"))
-  addLine(svg, x, y, lineValue, "#E5483A", getCountry(data, "Indonesia"))
-  addLine(svg, x, y, lineValue, "#55E56C", getCountry(data, "Philippines"))
-  addLine(svg, x, y, lineValue, "#8FCEE1", getCountry(data, "Myanmar"))
-  addLine(svg, x, y, lineValue, "#A4B6F6", getCountry(data, "Cambodia"))
-  addLine(svg, x, y, lineValue, "#D9C5F0", getCountry(data, "Laos"))
-  addLine(svg, x, y, lineValue, "#F2D3EC", getCountry(data, "Brunei"))
-  addLine(svg, x, y, lineValue, "#F00B4E", getCountry(data, "Timor-Leste"))
-
-  
-}
-
-function getCountry(data, country) {
-  return data.filter(d => d.name == country)
 }
 
 function addLine(svg, x, y, lineValue, color, data) {
   let stokeWidth = 1.5
-  let strokeOpacity = 0.2
+  let strokeOpacity = 0.4
   let symbolSize = 3
 
   let triangle = d3.symbol()
