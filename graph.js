@@ -69,8 +69,23 @@ function getCountry(data, country) {
 function addLine(svg, x, y, lineValue, color, data) {
   let stokeWidth = 1.5
   let strokeOpacity = 0.2
-  let dotSize = 3
+  let symbolSize = 3
 
+  let triangle = d3.symbol()
+    .type(d3.symbolTriangle)
+    .size(symbolSize * 10)
+
+  // add host symbol
+  svg.selectAll("myCircles")
+    .data(data.filter(d => d.host == "y"))
+    .enter()
+    .append("path")
+    .attr("d", triangle)
+    .attr("stroke", color)
+    .attr("fill", color)
+    .attr("transform", d => "translate(" + x(d.year) + "," + y(d.gold) + ")")
+
+  // add line
   svg.append("path")
     .datum(data)
     .attr("fill", "none")
@@ -79,6 +94,7 @@ function addLine(svg, x, y, lineValue, color, data) {
     .attr("stroke-opacity", strokeOpacity)
     .attr("d", lineValue)
 
+  // add dot on line
   svg.selectAll("myCircles")
     .data(data)
     .enter()
@@ -87,8 +103,9 @@ function addLine(svg, x, y, lineValue, color, data) {
     .attr("stroke", "none")
     .attr("cx", d => x(d.year) )
     .attr("cy", d => y(d.gold) )
-    .attr("r", dotSize)
+    .attr("r", symbolSize)
 
+  // add label of line
   svg.append("text")
     .attr("transform", "translate(" + (x(data[data.length-1].year) + 15) + "," + (y(data[data.length-1].gold)) + ")")
     .attr("dy", "0.2em")
