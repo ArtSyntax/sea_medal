@@ -10,7 +10,7 @@ async function plot(){
   let height = canvasSize - margin.top - margin.bottom
 
   // set the ranges
-  let x = d3.scaleLinear().range([0, width])
+  let x = d3.scaleLinear().range([0, width - 100])
   let y = d3.scaleLinear().range([height, 0])
 
   // append the svg obgect to the body of the page
@@ -72,22 +72,30 @@ function addLine(svg, x, y, lineValue, color, data) {
   let dotSize = 3
 
   svg.append("path")
-  .datum(data)
-  .attr("fill", "none")
-  .attr("stroke", color)
-  .attr("stroke-width", stokeWidth)
-  .attr("stroke-opacity", strokeOpacity)
-  .attr("d", lineValue)
+    .datum(data)
+    .attr("fill", "none")
+    .attr("stroke", color)
+    .attr("stroke-width", stokeWidth)
+    .attr("stroke-opacity", strokeOpacity)
+    .attr("d", lineValue)
 
   svg.selectAll("myCircles")
     .data(data)
     .enter()
     .append("circle")
-      .attr("fill", color)
-      .attr("stroke", "none")
-      .attr("cx", d => x(d.year) )
-      .attr("cy", d => y(d.gold) )
-      .attr("r", dotSize)
+    .attr("fill", color)
+    .attr("stroke", "none")
+    .attr("cx", d => x(d.year) )
+    .attr("cy", d => y(d.gold) )
+    .attr("r", dotSize)
+
+  svg.append("text")
+    .attr("transform", "translate(" + (x(data[data.length-1].year) + 15) + "," + (y(data[data.length-1].gold)) + ")")
+    .attr("dy", "0.2em")
+    .attr("text-anchor", "start")
+    .style("fill", color)
+    .text("AA")
+    .text(data[0].name)
 }
 
 function main() {
